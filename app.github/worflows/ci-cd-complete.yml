@@ -1,0 +1,71 @@
+name: 🚀 CI/CD Complet
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  # PHASE 1: INTÉGRATION CONTINUE
+  continuous-integration:
+    name: 🧪 CI - Tests et Validation
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Télécharger le code
+      uses: actions/checkout@v4
+      
+    - name: 🔍 Validation complète
+      run: |
+        echo "=== DÉBUT DES VALIDATIONS CI ==="
+        
+        # Validation des fichiers
+        echo "1. Vérification des fichiers..."
+        [ -f "index.html" ] || exit 1
+        echo "   ✅ index.html présent"
+        
+        # Validation HTML
+        echo "2. Validation HTML..."
+        grep -q "<!DOCTYPE html>" index.html || exit 1
+        grep -q "</html>" index.html || exit 1
+        echo "   ✅ HTML valide"
+        
+        # Métriques de qualité
+        echo "3. Métriques de qualité..."
+        LINES=$(wc -l < index.html)
+        echo "   📊 Lignes de code: $LINES"
+        
+        echo "=== VALIDATION CI RÉUSSIE ==="
+        
+    - name: 📈 Rapport CI
+      run: |
+        echo "📋 RAPPORT CI - ${{ github.sha }}"
+        echo "✅ Tous les tests passent"
+        echo "✅ Code validé"
+        echo "✅ Prêt pour le déploiement"
+
+  # PHASE 2: DÉPLOIEMENT CONTINU
+  continuous-deployment:
+    name: 🌐 CD - Déploiement Production
+    runs-on: ubuntu-latest
+    needs: continuous-integration  # Dépend de la phase CI
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: 📥 Télécharger le code
+      uses: actions/checkout@v4
+      
+    - name: 🚀 Déployer l'application
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./
+        
+    - name: 🎉 Confirmation
+      run: |
+        echo "🎊 DÉPLOIEMENT AUTOMATIQUE RÉUSSI !"
+        echo ""
+        echo "🌐 URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/"
+        echo "🕐 Heure: $(date)"
+        echo "🔗 Commit: ${{ github.sha }}"

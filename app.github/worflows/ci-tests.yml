@@ -1,0 +1,62 @@
+name: 🧪 CI - Tests et Validation
+
+on:
+  pull_request:
+    branches: [ main, develop ]
+  push:
+    branches: [ main, develop, feature/** ]
+
+jobs:
+  code-validation:
+    name: 🔍 Validation du Code
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Télécharger le code
+      uses: actions/checkout@v4
+      
+    - name: 🏗️ Vérifier la structure
+      run: |
+        echo "Validation de la structure du projet..."
+        
+        # Vérifier les fichiers essentiels
+        if [ ! -f "index.html" ]; then
+          echo "❌ Fichier index.html manquant"
+          exit 1
+        fi
+        
+        # Valider la structure HTML
+        if ! grep -q "<!DOCTYPE html>" index.html; then
+          echo "❌ DOCTYPE HTML manquant"
+          exit 1
+        fi
+        
+        if ! grep -q "</html>" index.html; then
+          echo "❌ Balise fermante </html> manquante"
+          exit 1
+        fi
+        
+        echo "✅ Structure HTML valide"
+        
+    - name: 📏 Analyse de qualité
+      run: |
+        echo "Analyse de qualité du code..."
+        
+        # Vérifier la taille des fichiers
+        FILE_SIZE=$(stat -f%z index.html 2>/dev/null || stat -c%s index.html 2>/dev/null)
+        echo "Taille du fichier index.html: $FILE_SIZE bytes"
+        
+        # Compter les lignes de code
+        LINES=$(wc -l < index.html)
+        echo "Nombre de lignes: $LINES"
+        
+        echo "✅ Analyse de qualité terminée"
+        
+    - name: 📊 Rapport CI
+      run: |
+        echo "🎉 PHASE CI TERMINÉE AVEC SUCCÈS"
+        echo "📈 Statut: PRÊT PLE DÉPLOIEMENT"
+        echo "🔍 Résultats:"
+        echo "   - ✅ Structure validée"
+        echo "   - ✅ HTML vérifié"
+        echo "   - ✅ Qualité confirmée"

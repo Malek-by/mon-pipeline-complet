@@ -1,0 +1,42 @@
+name: 🌐 CD - Déploiement Automatique
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:  # Permet de déclencher manuellement
+
+jobs:
+  deploy:
+    name: 🚀 Déploiement Production
+    runs-on: ubuntu-latest
+    environment: production
+    
+    steps:
+    - name: 📥 Télécharger le code
+      uses: actions/checkout@v4
+      
+    - name: 🏷️ Informations de déploiement
+      run: |
+        echo "Déploiement en cours..."
+        echo "Repository: ${{ github.repository }}"
+        echo "Ref: ${{ github.ref }}"
+        echo "SHA: ${{ github.sha }}"
+        echo "Déclenché par: ${{ github.actor }}"
+        
+    - name: 🚀 Déployer sur GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./
+        force_orphan: true
+        
+    - name: 📢 Notification de succès
+      run: |
+        echo "🎉 DÉPLOIEMENT RÉUSSI !"
+        echo "🌐 Votre application est maintenant en ligne sur:"
+        echo "   https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/"
+        echo ""
+        echo "📦 Détails:"
+        echo "   - Branche: ${{ github.ref }}"
+        echo "   - Commit: ${{ github.sha }}"
+        echo "   - Temps: $(date)"
